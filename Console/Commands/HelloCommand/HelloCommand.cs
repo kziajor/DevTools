@@ -26,6 +26,15 @@ internal class HelloCommand : Command
 
         name ??= PersonFaker.FullName();
 
-        AnsiConsole.MarkupLine($"Hello, [green]{name}![/]");
+        FigletText figletHello = new FigletText("Hello")
+            .Centered()
+            .Color(Color.White);
+
+        FigletText figletName = new FigletText(name)
+            .Centered()
+            .Color(Color.DodgerBlue3);
+
+        AnsiConsole.Write(figletHello);
+        AnsiConsole.Write(figletName);
     }
 }
