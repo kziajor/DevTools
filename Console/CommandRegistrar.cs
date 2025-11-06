@@ -1,7 +1,6 @@
 using System.CommandLine;
 using DevTools.Console.Commands.HelloCommand;
 using DevTools.Console.Commands.NumberCommand;
-
 namespace DevTools.Console;
 internal static class CommandRegistrar
 {
