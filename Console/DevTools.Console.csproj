@@ -5,6 +5,23 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <!-- .NET Tool Configuration -->
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dev</ToolCommandName>
+    <PackageId>DevTools.Console</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>DevTools</Authors>
+    <Description>A development tools console application</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Spectre.Console" Version="0.53.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-rc.2.25502.107" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Services\DevTools.Services.csproj" />
+  </ItemGroup>
 
 </Project>

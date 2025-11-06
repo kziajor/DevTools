@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DevTools.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "number 10 20"
+    }
+  }
+}
