@@ -2,7 +2,7 @@
   "profiles": {
     "DevTools.Console": {
       "commandName": "Project",
-      "commandLineArgs": "hello"
+      "commandLineArgs": "number 10 20"
     }
   }
 }
