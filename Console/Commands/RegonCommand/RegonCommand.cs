@@ -10,8 +10,16 @@ internal class RegonCommand : Command
     private const string COUNT_OPTION = "--count";
     private const string TABLE_OPTION = "--table";
 
-    public RegonCommand() : base("regon", "Generates random valid REGON number(s)")
+    public RegonCommand() : base("regon", "Generates random valid REGON number(s) or validates a REGON")
     {
+        Argument<string?> regonArgument = new("regon")
+        {
+            Description = "REGON number to validate (optional)",
+            Arity = ArgumentArity.ZeroOrOne
+        };
+
+        Arguments.Add(regonArgument);
+
         Option<int> lengthOption = new(LENGTH_OPTION)
         {
             Description = "Length of REGON number (9 or 14)"
@@ -36,6 +44,14 @@ internal class RegonCommand : Command
 
     private void Handle(ParseResult result)
     {
+        var regonToValidate = result.GetValue<string?>("regon");
+
+        if (!string.IsNullOrEmpty(regonToValidate))
+        {
+            ValidateUserRegon(regonToValidate);
+            return;
+        }
+
         var length = result.GetValue<int>(LENGTH_OPTION);
         length = length == default ? 9 : length;
 
@@ -84,6 +100,18 @@ internal class RegonCommand : Command
             {
                 AnsiConsole.WriteLine(RegonFaker.RandomRegon(length));
             }
+        }
+    }
+
+    private void ValidateUserRegon(string regon)
+    {
+        if (RegonFaker.IsValidRegon(regon))
+        {
+            AnsiConsole.MarkupLine($"[green]✓ REGON {regon} is [bold]VALID[/][/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine($"[red]✗ REGON {regon} is [bold]INVALID[/][/]");
         }
     }
 }

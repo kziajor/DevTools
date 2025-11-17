@@ -13,6 +13,56 @@ public static class RegonFaker
         return GenerateRegon14();
     }
 
+    public static bool IsValidRegon(string regon)
+    {
+        if (string.IsNullOrWhiteSpace(regon))
+            return false;
+
+        if (regon.Length != 9 && regon.Length != 14)
+            return false;
+
+        if (!regon.All(char.IsDigit))
+            return false;
+
+        if (regon.Length == 9)
+            return ValidateRegon9(regon);
+        return ValidateRegon14(regon);
+    }
+
+    private static bool ValidateRegon9(string regon)
+    {
+        int[] weights = new int[] { 8, 9, 2, 3, 4, 5, 6, 7 };
+        int sum = 0;
+
+        for (int i = 0; i < 8; i++)
+        {
+            sum += (regon[i] - '0') * weights[i];
+        }
+
+        int checksum = sum % 11;
+        if (checksum == 10)
+            checksum = 0;
+
+        return (regon[8] - '0') == checksum;
+    }
+
+    private static bool ValidateRegon14(string regon)
+    {
+        int[] weights = new int[] { 2, 4, 8, 5, 0, 9, 7, 3, 6, 1, 2, 4, 8 };
+        int sum = 0;
+
+        for (int i = 0; i < 13; i++)
+        {
+            sum += (regon[i] - '0') * weights[i];
+        }
+
+        int checksum = sum % 11;
+        if (checksum == 10)
+            checksum = 0;
+
+        return (regon[13] - '0') == checksum;
+    }
+
     private static string GenerateRegon9()
     {
         int[] weights = new int[] { 8, 9, 2, 3, 4, 5, 6, 7 };
