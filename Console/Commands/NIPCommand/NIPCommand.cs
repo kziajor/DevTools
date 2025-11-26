@@ -1,6 +1,7 @@
 using System.CommandLine;
 using DevTools.Services;
 using Spectre.Console;
+using TextCopy;
 
 namespace DevTools.Console.Commands.NIPCommand;
 
