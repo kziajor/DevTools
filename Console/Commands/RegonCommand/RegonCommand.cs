@@ -1,6 +1,7 @@
 using System.CommandLine;
 using DevTools.Services;
 using Spectre.Console;
+using TextCopy;
 
 namespace DevTools.Console.Commands.RegonCommand;
 
@@ -93,6 +94,8 @@ internal class RegonCommand : Command
                     .Color(Color.White);
 
             AnsiConsole.Write(figletRegon);
+            CopyToClipboard(regon);
+            AnsiConsole.MarkupLine("[grey]([/][green]Copied to clipboard[/][grey])[/]");
         }
         else
         {
@@ -112,6 +115,18 @@ internal class RegonCommand : Command
         else
         {
             AnsiConsole.MarkupLine($"[red]✗ REGON {regon} is [bold]INVALID[/][/]");
+        }
+    }
+
+    private async void CopyToClipboard(string text)
+    {
+        try
+        {
+            await ClipboardService.SetTextAsync(text);
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[grey]([/][yellow]Clipboard copy failed: {ex.Message}[/][grey])[/]");
         }
     }
 }

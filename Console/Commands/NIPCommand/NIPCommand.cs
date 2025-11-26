@@ -76,4 +76,69 @@ public class NIPCommand : Command
     {
         return $"{nip[..3]}-{nip.Substring(3, 3)}-{nip.Substring(6, 2)}-{nip.Substring(8, 2)}";
     }
+
+    private void CopyToClipboard(string text)
+    {
+        try
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                var process = new System.Diagnostics.Process
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "powershell",
+                        Arguments = $"-Command \"'{text}' | Set-Clipboard\"",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+                process.Start();
+                process.WaitForExit();
+            }
+            else if (OperatingSystem.IsLinux())
+            {
+                var process = new System.Diagnostics.Process
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "xclip",
+                        Arguments = "-selection clipboard",
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardInput = true
+                    }
+                };
+                process.Start();
+                using (var sw = process.StandardInput)
+                {
+                    sw.WriteLine(text);
+                }
+                process.WaitForExit();
+            }
+            else if (OperatingSystem.IsMacOS())
+            {
+                var process = new System.Diagnostics.Process
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "pbcopy",
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardInput = true
+                    }
+                };
+                process.Start();
+                using (var sw = process.StandardInput)
+                {
+                    sw.WriteLine(text);
+                }
+                process.WaitForExit();
+            }
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[grey]([/][yellow]Clipboard copy failed: {ex.Message}[/][grey])[/]");
+        }
+    }
 }
