@@ -1,4 +1,5 @@
 using System.CommandLine;
+using DevTools.Console.Commands.GenCommands.CsvCommand;
 
 namespace DevTools.Console.Commands.GenCommand;
 
@@ -11,5 +12,7 @@ public class GenCommand : Command
         Add(new NIPCommand.NIPCommand());
         Add(new NumberCommand.NumberCommand());
         Add(new RegonCommand.RegonCommand());
+        Add(new GuidCommand.GuidCommand());
+        Add(new CsvCommand());
     }
 }
