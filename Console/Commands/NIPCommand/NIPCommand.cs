@@ -10,6 +10,7 @@ public class NIPCommand : Command
 {
     private readonly Argument<string?> _nipArgument;
     private const string NIP_ARGUMENT = "nip";
+    private const string COUNT_OPTION = "--count";
 
     public NIPCommand() : base("nip", "Validates Polish Tax Identification Number (NIP)")
     {
@@ -20,6 +21,14 @@ public class NIPCommand : Command
         };
 
         Add(_nipArgument);
+
+        Option<int> countOption = new(COUNT_OPTION)
+        {
+            Description = "Number of NIP numbers to generate (only when no NIP is provided for validation)"
+        };
+
+        Options.Add(countOption);
+
         SetAction(Handle);
     }
 
@@ -27,7 +36,7 @@ public class NIPCommand : Command
     {
         string? inputNip = result.GetValue(_nipArgument);
 
-        if (string.IsNullOrEmpty(inputNip))
+        if (!string.IsNullOrEmpty(inputNip))
         {
             string generatedNip = NIPFaker.GenerateRandomNIP();
             AnsiConsole.MarkupLine($"[green]Generated valid NIP: {generatedNip}[/]");
@@ -35,6 +44,29 @@ public class NIPCommand : Command
             return;
         }
 
+        if (count == 1)
+        {
+            string generatedNip = NIPFaker.GenerateRandomNIP();
+            var figletNip = new FigletText(generatedNip)
+                .Centered()
+                .Color(Color.Green);
+
+            AnsiConsole.Write(figletNip);
+            CopyToClipboard(generatedNip);
+            AnsiConsole.MarkupLine("[grey]([/][green]Copied to clipboard[/][grey])[/]");
+        }
+        else
+        {
+            for (int i = 0; i < count; i++)
+            {
+                string generatedNip = NIPFaker.GenerateRandomNIP();
+                AnsiConsole.WriteLine(generatedNip);
+            }
+        }
+    }
+
+    private void ValidateNip(string inputNip)
+    {
         var cleanNip = inputNip.Replace("-", "").Replace(" ", "");
 
         if (!IsValidNipFormat(cleanNip))
