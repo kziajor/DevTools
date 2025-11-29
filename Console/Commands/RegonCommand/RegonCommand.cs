@@ -93,6 +93,8 @@ internal class RegonCommand : Command
                     .Color(Color.White);
 
             AnsiConsole.Write(figletRegon);
+            CopyToClipboard(regon);
+            AnsiConsole.MarkupLine("[grey]([/][green]Copied to clipboard[/][grey])[/]");
         }
         else
         {
@@ -112,6 +114,71 @@ internal class RegonCommand : Command
         else
         {
             AnsiConsole.MarkupLine($"[red]✗ REGON {regon} is [bold]INVALID[/][/]");
+        }
+    }
+
+    private void CopyToClipboard(string text)
+    {
+        try
+        {
+            if (OperatingSystem.IsWindows())
+            {
+                var process = new System.Diagnostics.Process
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "powershell",
+                        Arguments = $"-Command \"'{text}' | Set-Clipboard\"",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    }
+                };
+                process.Start();
+                process.WaitForExit();
+            }
+            else if (OperatingSystem.IsLinux())
+            {
+                var process = new System.Diagnostics.Process
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "xclip",
+                        Arguments = "-selection clipboard",
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardInput = true
+                    }
+                };
+                process.Start();
+                using (var sw = process.StandardInput)
+                {
+                    sw.WriteLine(text);
+                }
+                process.WaitForExit();
+            }
+            else if (OperatingSystem.IsMacOS())
+            {
+                var process = new System.Diagnostics.Process
+                {
+                    StartInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "pbcopy",
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardInput = true
+                    }
+                };
+                process.Start();
+                using (var sw = process.StandardInput)
+                {
+                    sw.WriteLine(text);
+                }
+                process.WaitForExit();
+            }
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[grey]([/][yellow]Clipboard copy failed: {ex.Message}[/][grey])[/]");
         }
     }
 }
