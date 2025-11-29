@@ -1,4 +1,6 @@
 using System.CommandLine;
+using System.Runtime.InteropServices;
+using System.Text;
 using DevTools.Services;
 using Spectre.Console;
 
@@ -93,6 +95,7 @@ internal class RegonCommand : Command
                     .Color(Color.White);
 
             AnsiConsole.Write(figletRegon);
+            CopyToClipboard(regon);
         }
         else
         {
@@ -108,11 +111,75 @@ internal class RegonCommand : Command
         if (RegonFaker.IsValidRegon(regon))
         {
             AnsiConsole.MarkupLine($"[green]✓ REGON {regon} is [bold]VALID[/][/]");
+            CopyToClipboard(regon);
         }
         else
         {
             AnsiConsole.MarkupLine($"[red]✗ REGON {regon} is [bold]INVALID[/][/]");
         }
     }
+
+    private void CopyToClipboard(string text)
+    {
+        try
+        {
+            CopyToWindowsClipboard(text);
+            AnsiConsole.MarkupLine("[grey]([/][green]Copied to clipboard[/][grey])[/]");
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[grey]([/][yellow]Clipboard copy failed: {ex.Message}[/][grey])[/]");
+        }
+    }
+
+    private static void CopyToWindowsClipboard(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return;
+
+        IntPtr hGlobal = Marshal.AllocHGlobal(Encoding.Unicode.GetByteCount(text) + 2);
+        try
+        {
+            IntPtr target = hGlobal;
+            foreach (char c in text)
+            {
+                Marshal.WriteInt16(target, c);
+                target = IntPtr.Add(target, 2);
+            }
+            Marshal.WriteInt16(target, 0);
+
+            if (!OpenClipboard(IntPtr.Zero))
+                throw new Exception("Failed to open clipboard");
+
+            try
+            {
+                EmptyClipboard();
+                if (SetClipboardData(13, hGlobal) == IntPtr.Zero)
+                    throw new Exception("Failed to set clipboard data");
+                hGlobal = IntPtr.Zero;
+            }
+            finally
+            {
+                CloseClipboard();
+            }
+        }
+        finally
+        {
+            if (hGlobal != IntPtr.Zero)
+                Marshal.FreeHGlobal(hGlobal);
+        }
+    }
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool OpenClipboard(IntPtr hWndNewOwner);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool CloseClipboard();
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern IntPtr SetClipboardData(uint format, IntPtr hMem);
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool EmptyClipboard();
 }
 
